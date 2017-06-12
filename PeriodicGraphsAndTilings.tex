@@ -1,0 +1,666 @@
+\documentclass[letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsthm, amsmath, amsfonts, amssymb}
+\usepackage{tikz}
+\usepackage{changepage}
+\usepackage{subfig}
+\usepackage{float}
+\usepackage[numbers]{natbib}
+
+\title{Colouring Periodic Graphs and Tilings of the Plane}
+\author{Jessica Paquette, under supervision of Gary MacGillivray}
+\date{MATH 498, April 2016}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\renewcommand{\qed}{$\blacksquare$}
+\newenvironment{proof-of-lemma}[1]{\noindent{\bf Proof of Lemma #1}\hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{proofof}[1]{\medskip\noindent{\emph{Proof of Theorem #1. }}}{\qed\medskip\\}
+
+\newcommand{\reals}             {\mathbb{R}}
+\newcommand{\integers}          {\mathbb{Z}}
+\newcommand{\naturals}          {\mathbb{N}}
+\newcommand{\rationals}         {\mathbb{Q}}
+\newcommand{\complex}           {\mathbb{C}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Doubly periodic (DP) graphs are infinite graphs which exhibit translational symmetries in two dimensions.
+We discuss $k$-colourings of DP graphs, and generalize DP graphs to $d$ dimensions.
+First, we show that every bipartite DP graph permits periodic 2-colourings.
+Second, we show that the $d$-fold periodic graphs can be coloured in polynomial time.
+Finally, we show that $k$-colouring DP graphs is undecidable by reduction from the domino problem.
+As a corollary, we show that DP graphs which only admit aperiodic colourings exist.
+\end{abstract}
+
+\section{Introduction}
+
+A \emph{periodic graph} is a countably infinite graph that exhibits translational symmetries in some number of dimensions.
+Doubly periodic (DP) graphs, for example, exhibit symmetries in 2D space.
+Intuitively speaking, DP graphs can be seen as copies of a finite graph, each copy occupying a cell in 2D space.
+We discuss the $k$-colourings of periodic graphs.
+
+Decision problems surrounding the colourings of DP graphs are computationally easy in some cases, while undecidable in others.
+Deciding 2-colouring for DP graphs is polynomial-time \cite{bauslaugh05}. 
+In contrast, extending a 3-colouring of a finite portion of a DP graph to a 3-colouring of the entire graph is undecidable \cite{burr84}.
+Colourings of DP graphs can exhibit periodicity or aperiodicity.
+Thus, another question of interest is when periodic (or aperiodic) colourings exist.
+
+Section 3 proves that every bipartite DP graph admits periodic colourings.
+In Section 4, we we show that 2-colouring $d$-fold periodic graphs is decidable in polynomial time.
+Finally, Section 5 proves that $k$-colouring DP graphs is undecidable by reduction from the domino problem.
+As a corollary of this, we show that there are DP graphs which only admit aperiodic colourings.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Preliminaries}
+
+\subsection{DP Graphs}
+\emph{Doubly periodic graphs}, or \emph{DP graphs} can be constructed by placing countably infinite copies of a finite cell graph $G$ on an infinite two dimensional grid.
+Each cell can be uniquely determined by a pair of integers $i,j$.
+We refer to the specific cell as $G_{i,j}$.
+Two cells $G_{i,j}$ and $G_{i,k}$ are said to be in the same \emph{row}.
+We define \emph{column} similarly.
+Vertices in different cells can be adjacent, but only when their containing cells are adjacent.
+Two cells $G_{p,q}$ and $G_{r,s}$ are \emph{adjacent} exactly when $p = r \pm 1$ or $q = s \pm 1$.
+In the former case, we say that $G_{p,q}$ and $G_{r,s}$ are \emph{horizontally adjacent}.
+In the latter, we call the two cells \emph{vertically adjacent}.
+If, say $p = r + 1$, then we can say that $G_{p,q}$ is to the \emph{right} of $G_{r,s}$, or we call it $G_{r,s}$'s \emph{right neighbour}.
+The definitions of left, bottom, and top neighbours are similar; if $q = s + 1$, then $G_{p,q}$ is \emph{above} $G_{r,s}$, and so on.
+
+The vertices of $G$ are labelled $v^0, v^1, \ldots, v^n$.
+An individual vertex's superscript is known as the \emph{type} of that vertex.
+We write the vertices of $G_{i,j}$ as $v^0_{i,j}, v^1_{i,j}, \ldots, v^n_{i,j}$.
+This allows us to distinguish between vertices in two different cells.
+
+If two adjacent cells share an edge, say, $G_{i,j}$ and $G_{i+1,j}$, then a "copy" of this edge must appear for every cell and its rightmost neighbour.
+More specifically, let $\Gamma$ be a DP graph.
+If $v_{i,j}^av_{i+1, j}^b \in E(\Gamma)$, then for all cells $G_{p,q},G_{p+1,G}$, $v_{p,q}^a v_{p+1,q}^b \in E(\Gamma)$.
+This implies that any cell of $\Gamma$ can be "shifted" onto another cell, and the resultant graph will be isomorphic to $\Gamma$.
+It is in this sense that DP graphs exhibit translational symmetry.
+
+The maximum number of cells in the vertical direction intersected by a component of $C$ of $\Gamma$ is called the \emph{height} of $C$.
+We denote the height of $C$ as $H(C)$.
+The width of $C$ is defined similarly with respect to cells in the horizontal direction.
+For some vertex $v$, the specific row of $\Gamma$ that $v$ lies in is denoted $x(v)$.
+The specific column is $y(v)$.
+
+\subsection{$n$-fold Periodic Graphs}
+A $d$\emph{-fold periodic graph} generalizes DP graphs to $d$ dimensions, $d > 0$.
+The cells of a $d$-fold periodic graph are indexed by $d$-dimensional vectors.
+To refer to the cell at index $\vec{x} = [ x_1, x_2, \ldots, x_d ]$, we write $G_{\vec{x}}$, or $G_{x_1, x_2, \ldots, x_d}$.
+Like DP graphs, if two adjacent cells share an edge, all adjacent cells share an edge.
+For $d$-fold periodic graphs, we say that two cells $G_{\vec{a}}$, $G_{\vec{b}}$ are adjacent if $\vec{b_i} = \vec{a_i} \pm 1$ for some $1 \leq i \leq d$.
+We call $i$ the \emph{direction} between the two cells.
+The number of cells intersected in direction $i$ by some component $C$ of $\Gamma$ is called the \emph{height in direction } $i$ of $C$.
+This is denoted as $H_{i}(C)$.
+The "column" that some vertex lies in in the $w$ direction is written $w(v)$ for $1 \leq w \leq d$.
+
+\subsection{Colourings of Periodic Graphs}
+Let $Z$ be a colouring of a DP graph $\Gamma$.
+We call $Z$ \emph{periodic} if there is a translation $(a,b)$ which, when applied to any cell of $\Gamma$, preserves $Z$.
+If $Z$ is periodic and has period $(a,b)$, then translating $\Gamma$ over by $a$ cells horizontally and $b$ cells vertically results in a graph isomorphic to $\Gamma$ which is coloured with $Z$.
+It is intuitive to think of such translations as "shifting" $\Gamma$ by a certain number of cells.
+Thus, such translations are also referred to as shifts.
+
+Colourings need not be periodic; such translations do not necessarily exist.
+In this case, we call $Z$ an \emph{aperiodic} colouring.
+This definition carries over to $d$-fold periodic graphs, with translations being written $(x_1, x_2, \ldots, x_d)$.
+
+The notion of a minimum period is not well-defined, as we are concerned with more than one dimension.
+Consider a DP graph and a periodic colouring $Z$ of that graph, and the minimum $Z$-fixing translation of the form $(p,0)$.
+Since $p$ defines the least number of cells we need to shift by horizontally to preserve $Z$, we call it the \emph{horizontal period} of $Z$.
+Similarly, if we consider the minimum $Z$-fixing translation of the form $(0,q)$, then $q$ is the \emph{vertical period} of $Z$.
+We can also define periodicity in terms of more than one dimension.
+For example, we can talk about minimum $(p,q)$ shifts.
+The minimum such shift defines the number of cells that the graph must be shifted by diagonally in order to preserve $Z$.
+Since $(p,q)$ cannot be reduced to a single number in a meaningful way like for horizontal or vertical shifts, we refer to the translation itself as the minimum diagonal period of $Z$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Periodic 2-Colourings of Bipartite DP Graphs}
+
+The following theorem states that only bipartite DP graphs containing infinite components can admit periodic colourings \cite{beth10}.
+
+\begin{theorem} \cite{beth10}
+A bipartite DP graph $\Gamma$ has aperiodic 2-colourings if and only if it has finite components.
+\end{theorem}
+
+This section shows that every bipartite DP graph $\Gamma$ has at least one periodic 2-colouring.
+As a corollary of this result, we produce a bound on the lengths of the various periods of $\Gamma$'s 2-colourings.
+We use Theorem 3.1 to restrict our attention to bipartite DP graphs which contain finite components.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Periodic Colourings}
+
+This section proves the following theorem.
+
+\begin{theorem}
+Every bipartite DP graph admits periodic 2-colourings.
+\end{theorem}
+
+The proof is in two parts.
+First, we prove that DP graphs which only contain finite components always admit periodic colourings.
+Second, we show that DP graphs which contain both finite and infinite components always admit periodic colourings.
+
+\begin{lemma}
+DP graphs which only contain finite components always admit periodic colourings
+\end{lemma}
+
+\begin{proof}
+Let $\Gamma$ be a DP graph whose components are all finite.
+Since $\Gamma$'s components are all finite, the type of each vertex in each component is unique.
+So then for each pair of vertices $u,v$ of the same type, $u$ and $v$ are disconnected.
+Since $u$ and $v$ are disconnected, each pair of vertices of the same type can be assigned the same colouring.
+Then every pair of adjacent cells can be coloured in the same way.
+From this, we know that, a shift of $(1,0), (0,1)$ or $(1,1)$ all preserve the colouring of $\Gamma$.
+Therefore, $\Gamma$ admits periodic colourings.
+\end{proof}
+
+There thus exists a colouring $Z$ for which has period 1 horizontally and vertically, and $(1,1)$ diagonally.
+Notice that we could assign colours to the components of $\Gamma$ arbitrarily.
+To see this, let $u$ and $v$ be vertices of the same type.
+Since $u$ and $v$ are disconnected, the assignment of one colour to $u$ does not impact the colour of $v$.
+This intuition leads to the following lemma.
+
+\begin{lemma}
+DP graphs which contain only finite components can be coloured with any horizontal, vertical, or diagonal period
+\end{lemma}
+
+\begin{proof}
+As previously shown, it is possible to assign every cell of $\Gamma$ the same colouring.
+Let $c$ be the number of components of $G$.
+There are then $2^c$ possible colourings of $G$.
+Let two of these colourings be $c_1$ and $c_2$.
+Suppose that we wish to colour $\Gamma$ with horizontal period $p$.
+Let $S$ be a sequence consisting of 0s and 1s.
+Write $0^r$ to denote a string of $r$ 0s, and $1^s$ to denote a string of $s$ 1s.
+Then the sequence $S$ generated by concatenating infinitely many copies of $1 0^{p-1}$ is periodic, and has period $p$.
+Denote the $k$-th entry of $S$ as $S[k]$.
+Now consider each row of $\Gamma$, and each cell $G_{i,j}$ in that row.
+If $S[i] = 0$, then assign $G_{i,j}$ colour $c_1$. If, on the other hand, $S[i] = 1$, colour $G_{i,j}$ with $c_2$.
+Then the rows of $\Gamma$ are coloured in a way that is isomorphic to the sequence $S$, which has period $P$.
+Therefore, the colouring of $\Gamma$ has horizontal period $p$.
+A similar construction allows us to colour $\Gamma$ with arbitrary vertical and diagonal periods.
+Therefore, $\Gamma$ can be coloured with any arbitrary period.
+\end{proof}
+
+As a result of this lemma, the finite components of $\Gamma$ do not impact the overall periodicity of the colourings of $\Gamma$.
+Therefore, we can ignore the finite components of $\Gamma$ entirely.
+This allows us to easily prove Theorem 3.2.
+
+\begin{proofof}{3.2}
+Let $\Gamma$ be a bipartite DP graph.
+Remove all finite components from $\Gamma$ and let the resultant graph be $\Gamma_1$.
+Let the finite components of $\Gamma$ be $\Gamma_2$.
+Since $\Gamma_1$ only contains infinite components, it has at least one periodic colouring $Z_1$, with, say, horizontal period $p$.
+By the previous lemma, $\Gamma_2$ can be 2-coloured with arbitrary period, so it has a colouring $Z_2$ with horizontal period $p$.
+Therefore, $\Gamma_1 \cup \Gamma_2$ has a colouring with period $p$.
+A similar argument holds for vertical and diagonal periods.
+Therefore, $\Gamma$ admits periodic colourings.
+\end{proofof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Bounding the Period}
+
+We have established that all bipartite DP graphs permit periodic colourings.
+Now we can proceed to prove an upper bound on the periods of those colourings.
+We first prove that the statement holds for all DP graphs which contain one kind of infinite component.
+Following this, we generalize the argument to DP graphs with multiple, non-isomorphic infinite components.
+By Lemma 3.4 the finite components of a DP graph can be coloured with arbitrary period.
+Thus, we ignore them and focus on the infinite components.
+
+Let $c$ refer to the number of components of $G$.
+
+\begin{lemma}
+Every connected bipartite DP graph $\Gamma$ admits periodic colourings with horizontal and vertical period at most $1+2^c$, and a diagonal period of at most $(1+2^c, 1+2^c)$
+\end{lemma}
+
+\begin{proof}
+Let $\Gamma$ be a bipartite DP graph, and let $Z$ be any 2-colouring of $\Gamma$.
+If $G$ has $c$ components, then there are $2^c$ unique $2$-colourings of $G$.
+By the pigeonhole principle, for any $i,j \in \integers$, two of the cells $G_{i,j}, G_{i+1, j}, G_{i+2, j}, \ldots, G_{i+1+2^c, j}$ are coloured the same.
+Therefore, there is a $Z$-fixing translation of at most $1+2^c$ along $x$.
+A similar argument shows that there is a $Z$-fixing translation of at most $1+2^c$ along $y$.
+
+We can add the two translations together to produce a diagonal $Z$-fixing translation of at most $2(1+2^c)$ cells.
+To see this, first suppose to the contrary that no such translation exists.
+This cannot be the case, as shifting right $(1+2^c)$ cells always preserves $Z$.
+Similarly, shifting up $(1+2^c)$ cells always preserves $Z$.
+Performing both of these actions produces a diagonal shift in $Z$.
+Therefore,  there must be a diagonal $Z$-fixing translation of $2(1+2^c)$ cells.
+Now suppose that this translation is not maximum.
+If this was the case, then shifting up $(1+2^c)$ cells and right $2(1+2^c)$ cells would not preserve $Z$, a contradiction.
+Therefore, a diagonal $Z$-fixing translation of $2(1+2^c)$ cells is the maximum possible diagonal $Z$-fixing translation.
+\end{proof}
+
+Next, we consider the case where $\Gamma$ contains more than one infinite component.
+Let $\text{hort(} H \text{)}$ be the minumum horizontal period of a valid 2-colouring of some bipartite graph $H$.
+Define $\text{vert(} H \text{)}$  and $\text{diag(} H \text{)}$ similarly.
+
+\begin{theorem}
+Let $\Gamma$ be a bipartite DP graph with $k$ infinite components $C_1, C_2, \ldots C_k$. Then for any periodic 2-colouring $Z$ of $\Gamma$ all three of the following hold
+
+\begin{itemize}
+    \item The horizontal period of $Z$ is at most $\text{lcm}(\text{hort}(C_1), \text{hort}(C_2), \ldots \text{hort}(C_k))$
+    \item The vertical period of $Z$ is at most $\text{lcm}(\text{vert}(C_1), \text{vert}(C_2), \ldots \text{vert}(C_k))$
+    \item The diagonal period of $Z$ is at most $\text{lcm}(\text{diag}(C_1), \text{diag}(C_2), \ldots \text{hort}(C_k))$
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+By the previous lemma, each of $C_1, C_2, \ldots C_k$ permit periodic colourings.
+Suppose that $G$ has $c$ components, and $c'$ of them are used in each cell to form $C_i$.
+The subgraph of $\Gamma$ induced by the $c$ components of $\Gamma$ is also a DP graph, and so we can apply the previous lemma to it.
+Therefore, the horizontal period of $C_i$ is at most $1+2^{c'}$.
+We can apply this argument to each of the components.
+The colouring of $C_i$ repeats every $1+2^{c'}$ horizontal cells.
+The colourings of the other components repeat similarly.
+Therefore, after a shift of at most $\text{lcm}(\text{hort}(C_1), \text{hort}(C_2), \ldots \text{hort}(C_k))$ horizontal cells, the colourings of each component will match up.
+A similar argument holds for vertical and diagonal shifts.
+Thus, we have that the horizontal period of the colouring is at most $\text{lcm}(\text{hort}(C_1), \text{hort}(C_2), \ldots \text{hort}(C_k))$, the vertical period is at most $\text{lcm}(\text{vert}(C_1), \text{vert}(C_2), \ldots \text{vert}(C_k))$, and the diagonal period is at most $\text{lcm}(\text{diag}(C_1), \text{diag}(C_2), \ldots \text{hort}(C_k))$.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{2-Colouring $d$-fold Periodic Graphs}
+This section proves that it is possible to decide 2-colourability for $d$-fold periodic graphs in time polynomial in $n$.
+To illustrate the method of proof, we show the result for 3-fold periodic graphs.
+From there, we prove the result for $d$-fold periodic graphs.
+We build on the following result presented in \cite{bauslaugh05}.
+
+\begin{theorem} \cite{bauslaugh05}
+If a DP graph $\Gamma$ contains an odd cycle, then the subgraph of $\Gamma$ induced by the cells $G_{i,j}, 0 \leq i < 16n^2, 0 \leq j < 4n$ contains an odd cycle.
+\end{theorem}
+
+This implies that one can check whether or not a DP graph is bipartite by constructing a $16n^2 \times 4n$ cell, and searching for an odd cycle within that cell.
+Therefore, 2-colourablity for a DP graph is decidable in polynomial-time with respect to the number of vertices in the cell graph.
+
+Before proceeding, we will state three lemmas which were proved in \cite{bauslaugh05}.
+These three lemmas provide the basis for the proof of the desired theorem.
+We re-state them in terms of $d$-fold periodic graphs.
+This is permissible because each lemmas rely only on the length of paths between vertices of certain types.
+The lengths of the required paths do not change by increasing the dimensionality of $\Gamma$.
+
+\begin{lemma}\cite{bauslaugh05}
+If there is a path from a vertex $u$ to a vertex $v$ in $\Gamma$, then there is a path of length less than $n$ to a vertex with the same type as $v$.
+\end{lemma}
+
+This lemma implies that there is always a short path between two vertices. 
+
+\begin{lemma} \cite{bauslaugh05}
+Let $\Gamma$ be a $d$-fold periodic graph, with cell graph $G_{\vec{x}}$, and let $C$ be some connected component of $\Gamma$.
+If $H_i(C)$ for some direction $1 \leq i \leq d$ is at least $n$, then $C$ contains vertices $u$ and $v$ and a path $P = (u = v_0, v_1, \ldots v_r = v)$ such that
+
+\begin{enumerate}
+    \item $r \leq n$,
+    \item $u$ and $v$ are the same type,
+    \item $x_i(u) \neq x_i(v)$ 
+\end{enumerate}
+\end{lemma}
+
+This allows us to bound the distance between vertices of the same type in a predictable way.
+Given some direction $x$, if $H_x(C) \geq n$ for some component $C$ of $\Gamma$, then there is some type of vertex $t$ where if any vertex $u$ has type $t$, there is a path from $u$ to another vertex $v$ with type $t$, and $|x(u) - x(v)| = c$ for some constant $0 < c \leq n$.
+
+\begin{lemma} \cite{bauslaugh05}
+If $C$ is an odd cycle in a $d$-periodic graph $\Gamma$, then $\Gamma$ contains an odd cycle $C'$ with $H_i(C') < 4n$ for any direction $i$.
+\end{lemma}
+
+Thus, we can bound the height of a cycle $C$ in a chosen direction to $4n$.
+
+\subsection{3-fold Periodic Graphs}
+To illustrate the method of proof for $d$ dimensions, we will first prove a similar result for 3 dimensions.
+The idea behind the proof is to merge together cells so that they must contain the cycle, and continue the process in each dimension.
+At the end, we will have constructed a DP graph for which any cell can be directly queried for an odd cycle.
+The cells of the constructed DP graph correspond to a set of known cells in the original graph.
+By constructing the auxiliary graph, we know exactly where to look in the original graph.
+
+For convenience, let the directions of the 3-fold periodic graph be denoted $x$, $y$, and $z$.
+
+\begin{theorem}
+If a 3-fold periodic graph $\Gamma$ contains an odd cycle, then the subgraph of $\Gamma$ induced by the cells $G_{i,j,k}, 0 \leq i < 256n^4, 0 \leq j < 16n^2, 0 \leq k < 4n$ contains an odd cycle.
+\end{theorem}
+
+\begin{proof}
+Let $\Gamma$ be a 3-fold periodic graph.
+We will construct a new 3-fold periodic graph $\Gamma'$ whose cells consist of $4n$ cells of $\Gamma$ in the $z$ direction merged together.
+This implies that the cycle will be contained in the $z$ direction by each cell of $\Gamma'$ by Lemma 4.4.
+Let $G_{i,j,k} = \bigcup_{r=4nz}^{4n(z+1)-1} G_{i,j,r}$.
+If $u,v$ are in adjacent cells, then $uv \in E(\Gamma')$ if and only if
+
+\begin{itemize}
+    \item $uv \in E(\Gamma)$ and
+    \item $z(u) \neq 4nr$ and $z(v) \neq 4nr$ and
+    \item $z(u) \neq 4nr-1$ and $z(v) \neq 4nr-1$
+\end{itemize}
+
+Intuitively, we have broken $\Gamma$ up into chunks that are $4n$ cells deep, with no edges between $z$-adjacent cells.
+The discarded edges are guaranteed to never be part of the cycle by Lemma 4.4.
+Observe that $n' = |V(G')| = 4n^2$.
+
+Next, we apply the same process to $\Gamma'$.
+The resultant graph $\Gamma''$ has cells that are $4n' = 16n^2$ tall, with no edges between $y$-adjacent cells.
+Then by Lemma 4.4, if an odd cycle exists in $\Gamma$, there must also be an odd cycle with height at most $16n^2$.
+Observe that $n'' = 4n' n' = 64n^4$.
+
+By Lemma 4.4, if $\Gamma''$ contains an odd cycle, it also contains an odd cycle fewer than $4n'' = 256n^4$ cells wide.
+Since there are no edges between $y$-adjacent or $z$-adjacent cells, the cycle must be entirely contained within a single cell of $\Gamma''$.
+Then the cycle must be contained within the cells $G''_{i,0,0}$, $0 \leq i < 256n^4$. 
+Therefore, the cycle must also be contained within the cells $G_{i,j,k}$, $0 \leq i < 256n^4$, $0 \leq j < 16n^2$, $0 \leq k < 4n$.
+\end{proof}
+
+\subsection{$d$-fold Periodic Graphs}
+We now generalize the result to $d$-dimensions.
+We do this by repeating outlined process above for $i = 1, 2, \ldots d$.
+
+\begin{theorem}
+If a $d$-fold periodic graph $\Gamma$ contains an odd cycle, then the subgraph of $\Gamma$ induced by the cells $G_{x_1,x_2,\ldots,x_d}, 0 \leq x_1 < 4n, 0 \leq x_2 < 16n^2, \ldots 0 \leq x_d < 2^{2^d} n^{2^d}$ contains an odd cycle.
+\end{theorem}
+
+\begin{proof}
+The previous process can be generalized to $d$ dimensions.
+We state it as follows
+
+\begin{itemize}
+\item Let $n_0 = n$, and $h_0 = 4n_0$.
+\item For $i = 1, 2, \ldots d$ construct $\Gamma^i$ by letting $G^i_{x_1, x_2, \ldots x_d} = \bigcup_{r = 4n_{i-1}x_i}^{4n_{i-1}(x_i+1)-1} G_{x_1, x_2, \ldots, x_i = r, \ldots x_d}$.
+\item For each of pair of vertices $u,v$ in adjacent cells, add $uv$ to $E(\Gamma^i)$ if and only if $uv \in E(\Gamma)$, $H_i(u) \neq 4nr$ and $H_i(v) \neq 4nr-1$ (and vice versa)
+\item Let $n_i = 4n_{i-1}^2$ and $h_i = 4n_i$.
+\item If $\Gamma$ contains an odd cycle, then it must be contained within the cells $G_{\vec{x}}$, $0 \leq x_0 < h_0, \ 0 \leq x_1 < h_1, \ \ldots, \ 0 \leq x_n < h_n$. 
+\end{itemize}
+
+This process holds by repeated application of Lemma 4.4.
+
+Now observe what happens as $n_i$ and $h_i$ grow.
+
+\begin{figure}[H]
+\centering
+\begin{tabular}{c|c|c}
+$i$ & $n_i$ & $h_i$ \\ \hline
+$0$ & $n$ & $4n$ \\
+$1$ & $4n^2$ & $16n^2$ \\
+$2$ & $64n^4$ & $256n^4$ \\
+$3$ & $16384n^8$ & $65536n^8$ \\
+\end{tabular}
+\end{figure}
+
+We hypothesize that at $i = k$ $n_k = 2^{2^{k}-2} n^{2^k}$ and $h_k = 2^{2^{k}} n^{2^{k}}$. 
+We will show that the statement holds for $n_{k+1}$, and then for $h_{k+1}$.
+
+By definition of $n_i$, we know that if $n_k = 2^{2^{k}-2} n^{2^k}$, then,
+
+\begin{align*}
+n_{k+1} &= 4n_k^2 \\
+&= 4(2^{2^k-2} n^{2^k})^2 \\
+&= 4(2^{2^{k+1} - 4} n^{2^{k+1}}) \\
+&= 2^{2^{k+1} - 2} n^{2^{k+1}}
+\end{align*}
+
+Which is exactly as expected, and so $n_i = 2^{2^{i}-2} n^{2i^k}$.
+Now, we can show that $h_{k+1} = 2^{2^{k+1}} n^{2^{k+1}}$.
+
+\begin{align*}
+h_{k+1} &= 4n_{k+1} \\
+h_{k+1} &= 4(2^{2^{k+1} - 2} n^{2^{k+1}}) \\
+h_{k+1} &= 2^{2^{k+1}} n^{2^{k+1}}
+\end{align*}
+
+Which is exactly what we hypothesized. So then $h_i = 2^{2^{i}} n^{2^{i}}$. Therefore, if $\Gamma$ contains an odd cycle, it
+must also contain an odd cycle in the cells $G_{x_1,x_2,\ldots,x_d}, 0 \leq x_1 < 4n, 0 \leq x_2 < 16n^2, \ldots 0 \leq x_d < 2^{2^d} n^{2^d}$.
+\end{proof}
+
+From this, we can restrict the space we search in $\Gamma$ for an odd cycle to a block of $4n \times 16n^2 \times 256n^4 \times \ldots \times 2^{2^d} n^{2^d}$ cells. Note that this bound is still polynomial in $n$, as the dimension is fixed. However, the overall growth of the cells at every step is double exponential in terms of the dimension of $\Gamma$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{$k$-Colouring DP Graphs}
+
+The $k$-colourability of a DP graph was conjectured to be related to tiling the plane in \cite{bauslaugh05}.
+We prove that this is true.
+Tiling the plane with a set of Wang dominoes is reducible to 3-colouring for DP graphs.
+
+A \emph{Wang domino} or \emph{Wang tile} is an edge-coloured rectangular tile which cannot be rotated or flipped.
+Two Wang dominoes can be placed beside each other if their touching sides have the same colour.
+In general, we can say that for each side $x$ of a Wang domino $w_1$ and each side $y$ of a Wang domino $w_2$
+
+\[ x R y \text{ iff } x = y \].
+
+This is called the \emph{domino relation}.
+The question of whether or not a set of Wang dominoes tiles the plane is known to be undecidable \cite{berger1966}.
+Thus, $k$-colouring for $k \geq 3$ is undecidable for DP graphs.
+
+The reduction is in two parts.
+In the first step we show that it is possible to construct a DP graph $\Gamma$ whose colourings all preserve the domino relation.
+Each tile has four edge colours, or \emph{names}.
+We encode each name as a binary number using a sequence of vertices.
+Edges are places between the cells of $\Gamma$ so that the names that "touch" between cells have the same colouring.
+
+In the second step, we show that it is possible to encode valid tiles using $G$.
+We construct $G$ so that it can only be coloured when its four names correspond to a domino in our desired set.
+To achieve this, we model a Boolean circuit in $G$ which evaluates to true when the four names match those of some domino.
+Ultimately, the valid 3-colourings of $G$ model valid dominoes and the valid 3-colourings of $\Gamma$, if they exist, model tilings of the plane.
+
+The rest of this section is spent proving the following theorem.
+
+\begin{theorem}
+It is undecidable whether or not a DP graph $\Gamma$ is $k$-colourable for $k \geq 3$.
+\end{theorem}
+
+\subsection{Constructing $\Gamma$: Senders and Evaluators}
+
+In order to construct Boolean circuits, and facilitate relationships between cells, we introduce the notion of a \emph{sender} and \emph{evaluator}.
+Such graphs are shown to exist in \cite{burr84} and \cite{burr90}.
+
+\subsubsection{Senders}
+A finite graph $H$ is called a $(u,v)$\emph{-sender} if any valid 3-colouring of $H$ forces $u$ and $v$ to assume the same colour. \cite{burr84}
+This allows us to send a "signal" between two vertices $u$, and $v$.
+As a consequence, placing senders within $G$ allows us to enforce that if something is true in one cell, it must be true in a neighbouring cell. The following figure represents a sender.
+
+\begin{figure}[H]
+\centering
+\caption{A $(u,v)$-sender and the equivalent shorthand for a $(u,v)$-sender.}
+\includegraphics[scale=0.5]{sender}
+\end{figure}
+
+This can be easily verified.
+The two unlabelled vertices cannot be coloured the same as $u$ or $v$.
+Thus, the only choices for $u$ and $v$ are the same colour.
+
+\subsubsection{Evaluators}
+Let $\phi$ be an $r$-ary Boolean function.
+A $\phi$-\emph{evaluator} is a finite graph whose vertex set consists of $r$ \emph{input vertices} $a_0, a_1, \ldots, a_r$, and an \emph{output vertex} $b$.
+When $a_0 \ldots a_r$ are coloured 0 and 1, the colouring of $b$ is forced to assume the result of $\phi(a_0, \ldots a_r)$. Such graphs are shown to exist by Stefan Burr in \cite{burr90}.
+
+In each cell we place a \emph{control structure}.
+The control structure is a triangle whose vertices are assigned the colours 0, 1, and $c$.
+The vertex coloured $c$ is called the \emph{control vertex}.
+The other two vertices are referred to as \emph{false} and \emph{true} respectively.
+No vertex other than the control vertex is coloured with $c$.
+The control vertex ensures that the rest of the cell agrees on the meaning of true and false.
+To represent connections via senders to the control structure, we draw a grey rectangular vertex with labelled the desired colour.
+
+The meaning of true and false is maintained among all cells in $\Gamma$ by connecting $true_{i,j}$ to $true_{i+1,j}$ and $true_{i,j+1}$ for all cells $G_{i,j}$ via senders.
+We connect $false_{i,j}$ and $control_{i,j}$ to its neighbours similarly.
+The following figure illustrates the connections between the control structures of four cells.
+
+\begin{figure}[H]
+\centering
+\caption{The connections between the control structures of four cells}
+\makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{controlstructure}}%
+\end{figure}
+
+By the construction of a sender, each of the control structures must be coloured the same.
+Therefore, we can fix a vertex whose colouring always means true, a vertex whose colouring always means false, and a vertex whose colouring is control.
+
+To represent a complete logical system within $G$, we need only two evaluators: an AND evaluator and a NOT evaluator.
+
+\subsubsection{A NOT evaluator}
+
+The following graph evaluates the NOT function.
+
+\begin{figure}[H]
+\centering
+\caption{A NOT evaulator which determines $\neg \text{col}(a)$ and outputs in $b$}
+\includegraphics[scale=0.5]{notgate}
+\end{figure}
+
+The input vertex $a$ and $b$ can never be coloured the same.
+Since the bottom vertex is forced to assume the colour $c$, $a$ and $b$ must assume the opposite truth values.
+
+\newpage
+\subsubsection{An AND evaluator}
+
+The following graph evaluates the AND function. This graph is presented in \cite{burr84}.
+
+\begin{figure}[H]
+\centering
+\caption{An AND evaluator which determines $\text{col}(a_0) \wedge \text{col}(a_1)$ and outputs the result in the vertex $b$}
+\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{andgate}}%
+\end{figure}
+
+
+
+\newpage
+\subsection{Constructing $\Gamma$: Preserving the domino relation}
+Preserving the domino relation has two requirements.
+First, we need to encode the names of the dominoes.
+Second, we need to encode the orientation of the names to disallow rotations and flipping.
+
+Let $W$ be a set of Wang tiles whose edges can be labelled $1, 2, \ldots s$.
+We can encode the $s$ names using $\lceil lg(s) \rceil$ bits. 
+Thus, we add $\lceil lg(s) \rceil$ vertices for each edge of the tile.
+Label these vertices $x_0, x_1, \ldots, x_s$ for the "right" side, $y_0, y_1, \ldots y_s$ for the "top" side, $-x_0, -x_1, \ldots -x_s$ for the "left" side, and $-y_0, -y_1, \ldots -y_s$ for the "bottom" side.
+Connect each of these vertices via a sender to the control vertex.
+Then each of these vertices can be coloured with 0 or 1.
+At this point, we have encoded each of the $s$ possible names.
+
+Now, we need to satisfy the domino relation between cells.
+Consider $y_0, y_1, \ldots, y_s$ in $G_{i,j}$.
+We need to ensure that $G_{i,j+1}$ only has valid colourings if its copies of $-y_0, -y_1, \ldots, -y_s$ are coloured the same as $y_0, y_1, \ldots, y_s$ in $G_{i,j}$.
+To do this, we connect $y_0, y_1, \ldots, y_s$ in $G_{i,j}$ to $-y_0, -y_1, \ldots, -y_s$ in $G_{i,j+1}$ via $s$ senders.
+This enforces that $G_{i,j}$ and $G_{i,j+1}$ only have valid colourings if they agree on their positive and negative $y$ vertices respectively. Therefore, every pair of vertically adjacent cells must agree on its positive and negative $y$ vertices.
+A similar construction forces horizontally adjacent cells to agree on their positive and negative $x$ vertices.
+
+Finally, we have to enforce that tiles cannot be flipped or rotated.
+For each side of $G$, add a \emph{direction vertex}.
+We label these vertices as $d_x, d_{-x}, d_y, d_{-y}$ depending on their respective sides.
+The direction vertex of a side is coloured 1 or 0, with "positive" direction vertices being labelled 1, and "negative" direction vertices being labelled 0.
+This is enforced by connecting the positive direction vertices to \emph{true} via senders, and the negative direction vertices to \emph{false} via senders.
+By doing this, we force the meaning of "up", "down", "left", and "right" to remain consistent among all cells.
+This allows us to take the side of a name into account when we evaluate whether or not the colouring of our cell models a valid tile.
+
+The following figure illustrates the connections between two vertically adjacent cells. The connections between two horizontally adjacent cells are defined similarly.
+
+\begin{figure}[H]
+\centering
+\caption{The connections between the positive and negative $y$ vertices of $G_{i,j}$ and $G_{i, j+1}$}
+\includegraphics[scale=0.5]{namecell}
+\end{figure}
+
+
+\subsection{Constructing $\Gamma$: Modeling Valid Dominoes}
+
+Next, we must ensure that $G_{i,j}$ is only 3-colourable when the colours of its names match up with some valid domino.
+Using the AND and NOT evaluators, we can construct a Boolean circuit which evaluates to true only when we have a valid tile.
+We can then force the cell to only have valid colourings when the circuit evaluates to true by connecting its output to \emph{true$_{i,j}$} via a sender.
+
+To illustrate the method of constructing the circuit, we'll start with a small example.
+Suppose that we have a Wang tile whose left side has colour 0, top side has colour 1, right side has colour 2, and bottom side has colour 3. Then we can write the colours as $0 = 00_2$, $1 = 01_2$, $2 = 10_2$, and $3 = 11_2$.
+
+The colours of each side are stored in the vertices $x_0, x_1$, $-x_0, -x_1$, $y_0, y_1$, and $-y_0,-y_1$.
+The physical side of the tile that the name is on is stored in $d_{-x}, d_x, d_y$ and $d_{-y}$.
+By construction, $d_x$ and $d_y$ are always coloured with 1, while $d_{-x}$ and $d_{-y}$ are always coloured with 0.
+There are $\binom{4}{2} = 6$ combinations of two sides of any tile.
+So, we can compare the combinations of the names of our colourings with the combinations of the names of some given tile.
+If they all match up exactly, then we must have the tile.
+So, a Boolean function which evaluates the tile $(0,1,2,3)$ is
+
+\begin{align}
+    &((\neg d_{-x} \wedge (\neg-x_0 \wedge \neg-x_1)) &\wedge \ &(d_x \wedge (x_0 \wedge \neg x_1))) \ &\wedge\\
+    &((\neg d_{-x} \wedge (\neg-x_0 \wedge \neg-x_1)) &\wedge \ &(d_y \wedge (\neg y_0 \wedge y_1))) \ &\wedge\\
+    &((\neg d_{-x} \wedge (\neg-x_0 \wedge \neg-x_1)) &\wedge \ &(\neg d_{-y} \wedge (-y_0 \wedge -y_1))) \ &\wedge\\
+    &((d_y \wedge (\neg y_0 \wedge y_1)) &\wedge \ &(\neg d_{-y} \wedge (-y_0 \wedge -y_1))) \ &\wedge\\
+    &((d_y \wedge (\neg y_0 \wedge y_1)) &\wedge \ &(d_x \wedge (x_0 \wedge \neg x_1))) \ &\wedge\\
+    &((d_x \wedge (x_0 \wedge \neg x_1)) &\wedge \ &(\neg d_{-y} \wedge (-y_0 \wedge -y_1)))
+\end{align}
+
+Lines (1) through (3) ensure that if the left side of the tile is coloured with $00_2$, then the right side of the tile must be coloured with $10_2$, the top side must be coloured with $01_2$, and the bottom side must be coloured with $11_2$.
+Lines (4) and (5) ensure that if the top side is coloured with $01_2$, then the bottom side must be coloured with $00_2$, and the right side must be coloured with $10_2$.
+Finally, line 6 ensures that if the right side is coloured with $10_2$, then the bottom side must be coloured with $00_2$.
+This exhausts every combination of sides in the tile, and so it is satisfied if and only if the current tile is exactly as described.
+
+For each of the tiles in our set, we construct Boolean functions like above.
+In general, let \emph{LNAME} denote the name on the left of the desired tile, \emph{UNAME} denote the name on the top, \emph{RNAME} denote the name on the right, and \emph{BNAME} denote the name on the bottom. Then the following Boolean function evaluates to true if and only if the sides match those of the tile exactly:
+
+\begin{align}
+    & ((\neg d_{-x} LNAME)  &\wedge \ &(d_x \wedge RNAME)) \ &\wedge \\
+    & ((\neg d_{-x} LNAME)  &\wedge \ &(d_y \wedge UNAME)) \ &\wedge\\
+    & ((\neg d_{-x} LNAME)  &\wedge \ &(\neg d_{-y} BNAME)) \ &\wedge\\
+    &((d_y \wedge UNAME) &\wedge \ &(\neg d_{-y} BNAME)) \ &\wedge\\
+    &((d_y \wedge UNAME) &\wedge \ &(d_x \wedge RNAME)) \ &\wedge\\
+    &((d_x \wedge RNAME) &\wedge \ &(\neg d_{-y} \wedge BNAME))
+\end{align}
+
+Say we have $t$ tiles. Then we will have $t$ separate functions $T_1, T_2, \ldots T_t$ such that $T_i$ evaluates to true if and only if the current colouring represents $T_i$. By the previous construction of AND and NOT gates, it is possible to construct these functions. Our final desired function is
+
+\[ \phi = T_1 \vee T_2 \vee \ldots \vee T_t\]
+
+Which evaluates to true if and only if the colouring represents exactly one tile.
+Since $\{ \wedge, \neg \}$ forms a complete logical system, $\phi$ is constructible.
+Each cell contains a copy of $\phi$ which takes as inputs the names and directions of the cells.
+In order to make sure that $G_{i,j}$ is only colourable when $\phi$ evaluates to true, we connect the output vertex of $\phi$ via a sender to \emph{$true_{i,j}$}.
+
+Thus, we have constructed a graph $\Gamma$ which is only colourable when the colourings of each cell represent a valid tile from a set of Wang tiles.
+Each of the colourings of the cells obey the domino relation, and the orientation is fixed.
+Therefore, $\Gamma$ can only be coloured if the set of Wang tiles it has been constructed for tiles the plane.
+Deciding whether or not tiling the plane is undecidable, so colouring $\Gamma$ is undecidable.
+Therefore, 3-colouring, and thus $k$-colouring DP graphs is undecidable. $\blacksquare$
+
+There are several well-known sets of Wang tiles which tile the plane only aperiodically \cite{CulikII95}. By our reduction, we obtain the following corollary.
+
+\begin{corollary}
+There exist 3-colourable DP graphs which only admit aperiodic colourings.
+\end{corollary}
+
+Since $k$-colouring DP graphs for $k \geq 3$ is undecidable, $k$-colouring $d$-fold periodic graphs for $k \geq 3$ is also undecidable.
+From this we can state the following corollary.
+
+\begin{corollary}
+Every tiling problem can be reformulated as a problem of deciding 3-colourability for a periodic graph.
+\end{corollary}
+
+\section{Concluding Remarks}
+Every bipartite DP graph admits periodic colourings, but this does not hold for all DP graphs in general.
+It is still possible to colour bipartite $d$-fold periodic graphs in time polynomial in $n$, but double-exponential in $d$.
+For $k > 2$, $k$-colouring DP graphs is undecidable.
+From this, we can infer that $k$-colouring $d$-fold periodic graphs for $d > 2$ is also undecidable.
+As a result of the undecidability proof, every tiling problem using square dominoes can be reformulated as a colouring problem for periodic graphs.
+
+The periods of the colourings of bipartite DP graphs is bounded by the lcm of its components' colourings' periods.
+However, a lower bound is not currently known.
+There may be promise in exploring certain subclasses of DP graphs and examining the lower bounds of their colourings' periods.
+For example, it may be simple to bound the colouring periods of bipartite DP graphs which are constructible by unioning together DP graphs whose cell graphs are connected.
+If the cell graph is guaranteed to be connected, then each cell only permits two possible colourings.
+Therefore, for a single component, the horizontal and vertical periods are guaranteed to both be 1.
+
+It may also be of interest to explore whether or not all DP graphs which possess only aperiodic colourings are related to tiles.
+The graph construction presented for the reduction from tiling is likely not minimal.
+Thus, it may be interesting to find a lower bound on the size and order of a cell graph which only exhibits aperiodic colourings would be.
+\bibliographystyle{unsrt}
+\bibliography{bib}
+
+\end{document}
